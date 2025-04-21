@@ -2,13 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Monster : MonoBehaviour
+public class Monster : MonoBehaviour, IDamageable // IDamageable 인터페이스 상속
 {
+    [Header("Component")]
+    [SerializeField] Transform eyeTransform; // 눈 위치 
 
-    [SerializeField] float monsterHp;
+    [Header("Property")]
     [SerializeField] float sightRange; // 시야
     [SerializeField] float moveSpeed; // 이동 속도
-    [SerializeField] Transform eyeTransform; // 눈 위치 
+    [SerializeField] int hp;
+    public int HP { get { return hp; } private set { hp = value; } }
 
     [SerializeField] GameObject target;
 
@@ -57,31 +60,47 @@ public class Monster : MonoBehaviour
         transform.LookAt(target.transform.position);
     }
 
-    public void TakeDamage(float damage)
+    //public void TakeDamage(float damage)
+    //{
+    //    monsterHp -= damage;
+    //    if (monsterHp <= 0f)
+    //    {
+    //        Destroy(gameObject); // 몬스터 제거
+    //    }
+    //}
+
+    //private void OnCollisionEnter(Collision collision)
+    //{
+    //    if (collision.gameObject.CompareTag("Bullet"))
+    //    {
+    //        // 체력 감소
+    //        monsterHp -= 1f;
+    //        Destroy(collision.gameObject); // 탄환 제거
+    //
+    //        if (monsterHp <= 0f)
+    //        {
+    //            Destroy(gameObject); // 몬스터 제거
+    //        }
+    //    }
+    //    else if (collision.gameObject.CompareTag("Player"))
+    //    {
+    //        Destroy(collision.gameObject); // 탱크 제거
+    //    }
+    //}
+
+    public void TakeDamage(GameObject dealer, int damage)
     {
-        monsterHp -= damage;
-        if (monsterHp <= 0f)
+        Debug.Log($"{gameObject.name} 이/가 {dealer.name} 에게 공격을 {damage} 받았습니다. ");
+        HP -= damage;
+        if (HP <= 0)
         {
-            Destroy(gameObject); // 몬스터 제거
+            Die();
         }
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void Die()
     {
-        if (collision.gameObject.CompareTag("Bullet"))
-        {
-            // 체력 감소
-            monsterHp -= 1f;
-            Destroy(collision.gameObject); // 탄환 제거
-
-            if (monsterHp <= 0f)
-            {
-                Destroy(gameObject); // 몬스터 제거
-            }
-        }
-        else if (collision.gameObject.CompareTag("Player"))
-        {
-            Destroy(collision.gameObject); // 탱크 제거
-        }
+        GameManager.Instance.score += 1;
+        Destroy(gameObject);
     }
 }
